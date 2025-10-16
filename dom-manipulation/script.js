@@ -103,9 +103,9 @@ async function syncQuotes() {
     lq => !serverQuotes.some(sq => sq.text === lq.text)
   )];
 
-  // Detect updates
+  // Detect updates or conflicts
   if (mergedQuotes.length !== localQuotes.length) {
-    showNotification("Quotes updated from server (conflicts resolved).");
+    showNotification("Quotes synced with server!");
   }
 
   quotes = mergedQuotes;
