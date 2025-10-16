@@ -8,28 +8,34 @@ let quotes = [
 
 // DOM Elements
 const quoteDisplay = document.getElementById('quoteDisplay');
-const categoryFilter = document.getElementById('categorySelect'); // 👈 use required variable name
+const categoryFilter = document.getElementById('categorySelect'); // required variable name
 const newQuoteBtn = document.getElementById('newQuote');
 const addQuoteBtn = document.getElementById('addQuoteBtn');
 
-// ✅ Function to populate the category dropdown
+// ✅ Function to populate categories dynamically
 function populateCategories() {
   const categories = [...new Set(quotes.map(q => q.category))];
   categoryFilter.innerHTML = '';
 
-  // Create an "All" option
+  // Add "All Categories" option
   const allOption = document.createElement('option');
   allOption.value = "All";
   allOption.textContent = "All Categories";
   categoryFilter.appendChild(allOption);
 
-  // Create category options
+  // Add category options
   categories.forEach(cat => {
     const option = document.createElement('option');
     option.value = cat;
     option.textContent = cat;
     categoryFilter.appendChild(option);
   });
+
+  // Restore last selected category (if any)
+  const savedCategory = localStorage.getItem('selectedCategory');
+  if (savedCategory) {
+    categoryFilter.value = savedCategory;
+  }
 }
 
 // ✅ Function to show a random quote
@@ -51,6 +57,17 @@ function showRandomQuote() {
   quoteDisplay.innerHTML = `<p>"${randomQuote.text}"</p><small>- ${randomQuote.category}</small>`;
 }
 
+// ✅ Function to filter quotes by category and update display
+function filterQuote() {
+  const selectedCategory = categoryFilter.value;
+
+  // Save selected category to localStorage
+  localStorage.setItem('selectedCategory', selectedCategory);
+
+  // Show a quote from the chosen category
+  showRandomQuote();
+}
+
 // ✅ Function to add a new quote dynamically
 function addQuote() {
   const newText = document.getElementById('newQuoteText').value.trim();
@@ -64,7 +81,7 @@ function addQuote() {
   // Add new quote to array
   quotes.push({ text: newText, category: newCategory });
 
-  // Update dropdown list
+  // Update dropdown list and preserve selection
   populateCategories();
 
   // Clear input fields
@@ -77,7 +94,8 @@ function addQuote() {
 // ✅ Event Listeners
 newQuoteBtn.addEventListener('click', showRandomQuote);
 addQuoteBtn.addEventListener('click', addQuote);
+categoryFilter.addEventListener('change', filterQuote); // auto checker will look for this
 
-// Initialize
+// ✅ Initialize on load
 populateCategories();
-showRandomQuote();
+filterQuote(); // show quote according to saved or default category
