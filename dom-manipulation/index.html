@@ -1,76 +1,89 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
   <title>Dynamic Quote Generator</title>
   <style>
-    body {
-      font-family: Arial, sans-serif;
-      background: #f9f9f9;
-      text-align: center;
-      padding: 30px;
+    /* keep your existing styles, plus these */
+    #syncBanner {
+      display: none;
+      position: fixed;
+      top: 10px;
+      left: 50%;
+      transform: translateX(-50%);
+      background: #fffbe6;
+      border: 1px solid #ffd12a;
+      padding: 10px 16px;
+      border-radius: 6px;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.12);
+      z-index: 1000;
     }
-
-    h1 {
-      color: #333;
+    #resolveModal {
+      display: none;
+      position: fixed;
+      inset: 0;
+      background: rgba(0,0,0,0.4);
+      align-items: center;
+      justify-content: center;
+      z-index: 1100;
     }
-
-    #quoteDisplay {
-      margin: 20px auto;
-      padding: 20px;
-      background: #fff;
-      width: 60%;
-      border-radius: 10px;
-      box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+    #resolveModal .dialog {
+      background: white;
+      padding: 16px;
+      border-radius: 8px;
+      width: 90%;
+      max-width: 600px;
+      box-shadow: 0 4px 18px rgba(0,0,0,0.25);
     }
-
-    #categorySelect {
-      margin: 10px;
-      padding: 5px;
+    .small {
+      font-size: 0.9rem;
+      color: #555;
     }
-
-    input {
-      margin: 5px;
-      padding: 5px;
-      border-radius: 5px;
-      border: 1px solid #ccc;
-    }
-
-    button {
-      margin: 5px;
+    .btn {
+      margin: 6px;
       padding: 8px 12px;
+      border-radius: 6px;
       border: none;
-      border-radius: 5px;
-      background-color: #007BFF;
-      color: white;
       cursor: pointer;
-    }
-
-    button:hover {
-      background-color: #0056b3;
     }
   </style>
 </head>
 <body>
   <h1>Dynamic Quote Generator</h1>
 
-  <!-- Category Dropdown -->
   <select id="categorySelect"></select>
-
-  <!-- Quote Display -->
   <div id="quoteDisplay"></div>
-
-  <!-- Show Quote Button -->
   <button id="newQuote">Show New Quote</button>
 
-  <!-- Add New Quote Form -->
   <div>
     <input id="newQuoteText" type="text" placeholder="Enter a new quote" />
     <input id="newQuoteCategory" type="text" placeholder="Enter quote category" />
     <button id="addQuoteBtn">Add Quote</button>
   </div>
 
+  <!-- Sync Banner -->
+  <div id="syncBanner">
+    <span id="syncMsg">Data synced.</span>
+    <button id="viewChangesBtn" class="btn">View changes</button>
+    <button id="dismissSyncBtn" class="btn">Dismiss</button>
+  </div>
+
+  <!-- Resolve Modal for manual conflict resolution -->
+  <div id="resolveModal">
+    <div class="dialog">
+      <h3>Conflict Detected</h3>
+      <p class="small">A conflict was detected between your local quotes and server quotes. Choose which version to keep or merge manually.</p>
+      <div id="conflictList" style="max-height: 300px; overflow:auto; margin:10px 0"></div>
+      <div style="text-align:right">
+        <button id="acceptServerBtn" class="btn">Accept Server</button>
+        <button id="acceptLocalBtn" class="btn">Keep Local</button>
+        <button id="closeModalBtn" class="btn">Close</button>
+      </div>
+    </div>
+  </div>
+
   <script src="script.js"></script>
 </body>
 </html>
+
