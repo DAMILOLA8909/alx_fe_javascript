@@ -31,9 +31,23 @@ function createAddQuoteForm() {
   addButton.textContent = "Add Quote";
   addButton.addEventListener("click", addQuote);
 
+  // --- Export & Import controls ---
+  const exportButton = document.createElement("button");
+  exportButton.textContent = "Export Quotes";
+  exportButton.id = "exportQuotes";
+  exportButton.addEventListener("click", exportToJsonFile);
+
+  const importInput = document.createElement("input");
+  importInput.type = "file";
+  importInput.id = "importQuotes";
+  importInput.accept = ".json";
+  importInput.addEventListener("change", importFromJsonFile);
+
   formContainer.appendChild(quoteInput);
   formContainer.appendChild(categoryInput);
   formContainer.appendChild(addButton);
+  formContainer.appendChild(exportButton);
+  formContainer.appendChild(importInput);
 
   document.body.appendChild(formContainer);
 }
@@ -74,11 +88,53 @@ function addQuote() {
   quotes.push(newQuote);
   localStorage.setItem("quotes", JSON.stringify(quotes));
 
-  // Update UI
   populateCategories();
   showRandomQuote();
   showNotification("New quote added locally!");
   postQuoteToServer(newQuote);
+}
+
+// -------------------- Export Quotes to JSON --------------------
+function exportToJsonFile() {
+  const dataStr = JSON.stringify(quotes, null, 2);
+  const blob = new Blob([dataStr], { type: "application/json" });
+  const url = URL.createObjectURL(blob);
+
+  const link = document.createElement("a");
+  link.href = url;
+  link.download = "quotes.json";
+  link.click();
+
+  URL.revokeObjectURL(url);
+  showNotification("Quotes exported to JSON file!");
+}
+
+// -------------------- Import Quotes from JSON --------------------
+function importFromJsonFile(event) {
+  const file = event.target.files[0];
+  if (!file) return;
+
+  const reader = new FileReader();
+  reader.onload = e => {
+    try {
+      const importedQuotes = JSON.parse(e.target.result);
+      if (Array.isArray(importedQuotes)) {
+        quotes = [...quotes, ...importedQuotes.filter(
+          iq => !quotes.some(q => q.text === iq.text)
+        )];
+        localStorage.setItem("quotes", JSON.stringify(quotes));
+        populateCategories();
+        showRandomQuote();
+        showNotification("Quotes imported successfully!");
+      } else {
+        alert("Invalid file format. Please upload a JSON file containing an array of quotes.");
+      }
+    } catch (error) {
+      console.error("Error importing file:", error);
+      alert("Error reading file. Ensure it’s a valid JSON file.");
+    }
+  };
+  reader.readAsText(file);
 }
 
 // -------------------- Filter Quotes --------------------
@@ -153,7 +209,7 @@ window.addEventListener("load", () => {
   populateCategories();
   showRandomQuote();
   syncQuotes();
-  setInterval(syncQuotes, 15000); // Sync every 15s
+  setInterval(syncQuotes, 15000);
 });
 
 // Event Listeners
