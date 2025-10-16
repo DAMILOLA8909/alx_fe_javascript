@@ -12,6 +12,32 @@ let quotes = JSON.parse(localStorage.getItem("quotes")) || [
 
 let selectedCategory = localStorage.getItem("selectedCategory") || "All";
 
+// -------------------- Create Add Quote Form --------------------
+function createAddQuoteForm() {
+  const formContainer = document.createElement("div");
+  formContainer.id = "addQuoteForm";
+
+  const quoteInput = document.createElement("input");
+  quoteInput.type = "text";
+  quoteInput.id = "newQuoteText";
+  quoteInput.placeholder = "Enter a new quote";
+
+  const categoryInput = document.createElement("input");
+  categoryInput.type = "text";
+  categoryInput.id = "newQuoteCategory";
+  categoryInput.placeholder = "Enter quote category";
+
+  const addButton = document.createElement("button");
+  addButton.textContent = "Add Quote";
+  addButton.addEventListener("click", addQuote);
+
+  formContainer.appendChild(quoteInput);
+  formContainer.appendChild(categoryInput);
+  formContainer.appendChild(addButton);
+
+  document.body.appendChild(formContainer);
+}
+
 // -------------------- Populate Category Filter --------------------
 function populateCategories() {
   const categories = ["All", ...new Set(quotes.map(q => q.category))];
@@ -47,7 +73,10 @@ function addQuote() {
   const newQuote = { text, category };
   quotes.push(newQuote);
   localStorage.setItem("quotes", JSON.stringify(quotes));
+
+  // Update UI
   populateCategories();
+  showRandomQuote();
   showNotification("New quote added locally!");
   postQuoteToServer(newQuote);
 }
@@ -67,7 +96,6 @@ async function fetchQuotesFromServer() {
   try {
     const response = await fetch(SERVER_URL);
     const data = await response.json();
-    // Simulate server response
     const serverQuotes = data.slice(0, 5).map(item => ({
       text: item.title,
       category: "Server"
@@ -98,12 +126,10 @@ async function syncQuotes() {
   const serverQuotes = await fetchQuotesFromServer();
   const localQuotes = JSON.parse(localStorage.getItem("quotes")) || [];
 
-  // Conflict resolution: Server takes precedence
   const mergedQuotes = [...serverQuotes, ...localQuotes.filter(
     lq => !serverQuotes.some(sq => sq.text === lq.text)
   )];
 
-  // Detect updates or conflicts
   if (mergedQuotes.length !== localQuotes.length) {
     showNotification("Quotes synced with server!");
   }
@@ -123,11 +149,13 @@ function showNotification(message) {
 
 // -------------------- Initialize App --------------------
 window.addEventListener("load", () => {
+  createAddQuoteForm();
   populateCategories();
   showRandomQuote();
   syncQuotes();
-  setInterval(syncQuotes, 15000); // Periodic sync every 15 seconds
+  setInterval(syncQuotes, 15000); // Sync every 15s
 });
 
+// Event Listeners
 newQuoteBtn.addEventListener("click", showRandomQuote);
 categoryFilter.addEventListener("change", filterQuote);
