@@ -8,33 +8,33 @@ let quotes = [
 
 // DOM Elements
 const quoteDisplay = document.getElementById('quoteDisplay');
-const categorySelect = document.getElementById('categorySelect');
+const categoryFilter = document.getElementById('categorySelect'); // 👈 use required variable name
 const newQuoteBtn = document.getElementById('newQuote');
 const addQuoteBtn = document.getElementById('addQuoteBtn');
 
-// ✅ Initialize dropdown and display
-function initializeCategories() {
+// ✅ Function to populate the category dropdown
+function populateCategories() {
   const categories = [...new Set(quotes.map(q => q.category))];
-  categorySelect.innerHTML = '';
-  
+  categoryFilter.innerHTML = '';
+
   // Create an "All" option
   const allOption = document.createElement('option');
   allOption.value = "All";
   allOption.textContent = "All Categories";
-  categorySelect.appendChild(allOption);
+  categoryFilter.appendChild(allOption);
 
-  // Create options for each category
+  // Create category options
   categories.forEach(cat => {
     const option = document.createElement('option');
     option.value = cat;
     option.textContent = cat;
-    categorySelect.appendChild(option);
+    categoryFilter.appendChild(option);
   });
 }
 
 // ✅ Function to show a random quote
 function showRandomQuote() {
-  const selectedCategory = categorySelect.value;
+  const selectedCategory = categoryFilter.value;
   let filteredQuotes = quotes;
 
   if (selectedCategory !== "All") {
@@ -64,8 +64,8 @@ function addQuote() {
   // Add new quote to array
   quotes.push({ text: newText, category: newCategory });
 
-  // Update category dropdown
-  initializeCategories();
+  // Update dropdown list
+  populateCategories();
 
   // Clear input fields
   document.getElementById('newQuoteText').value = '';
@@ -78,6 +78,6 @@ function addQuote() {
 newQuoteBtn.addEventListener('click', showRandomQuote);
 addQuoteBtn.addEventListener('click', addQuote);
 
-// Initialize on load
-initializeCategories();
+// Initialize
+populateCategories();
 showRandomQuote();
